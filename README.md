@@ -16,7 +16,7 @@ Clearcut is a tool that uses machine learning to help you focus on the log entri
     % sudo pip install tdigest
 
     % sudo pip install git+https://github.com/scikit-learn/scikit-learn.git#egg=scikit-learn
-    % ./train_flows_iforest.py <training_data>
+    % ./train_flows_iforest.py -n <number_of_trees> -s <number_of_samples>  <training_data>
     % ./analyze_flows_iforest.py <bro_http_log>
 
 
