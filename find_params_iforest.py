@@ -68,12 +68,15 @@ if __name__ == "__main__":
     Start=time.time()
     (opts, args) = parser.parse_args()
 
-    if len(args) != 1:
+    if len(args) != 2:
         parser.error('Incorrect number of arguments')
 
     # load the http data in to a data frame
     print('Loading HTTP data')
     df = load_brofile(args[0], fields_to_use)
+    trainDf = load_brofile(args[1], fields_to_use)
+
+
 
     total_rows = len(df.index)
     if opts.verbose: print('Total number of rows: %d' % total_rows)
@@ -97,7 +100,15 @@ if __name__ == "__main__":
       noiseDf['class'] = 1
       classedDf = pd.concat([df,noiseDf], ignore_index=True)
 
-    enhancedDf = enhance_flow(classedDf)
+    #that doesn't matter
+    trainDf['class']=0;
+
+
+    #spliting into training and evaluation sets 
+    classedDf['is_train']=False
+    trainDf['is_train']=True
+
+    enhancedDf = enhance_flow(pd.concat([trainDf,classedDf], ignore_index=True))
     # construct some vectorizers based on the data in the DF. We need to vectorize future log files the exact same way so we
     # will be saving these vectorizers to a file.
 
@@ -108,9 +119,8 @@ if __name__ == "__main__":
 
     #add the class column back in (it wasn't featurized by itself)
     featureMatrix['class'] = enhancedDf['class']
+    featureMatrix['is_train'] = enhancedDf['is_train']
 
-    #randomly assign 3/4 of the feature df to training and 1/4 to test
-    featureMatrix['is_train'] = np.random.uniform(0, 1, len(featureMatrix)) <= .75
 
     #split out the train and test df's into separate objects
     train, test = featureMatrix[featureMatrix['is_train']==True], featureMatrix[featureMatrix['is_train']==False]
@@ -166,14 +176,14 @@ if __name__ == "__main__":
     plt.savefig("fig3.png")
     plt.show()
 
-    print('Area Under the Curve = ', '%.6f'%(roc_auc))
+    print('Area Under the Curve = %.6f' %(roc_auc))
 
 
 
     Min, Sec= divmod( int(time.time() - Start), 60 )
-    print Min, Sec
+    #print Min, Sec
 
-    target= open('Results', 'a')
+    target= open('Results.txt', 'a')
     target.write(str(Trees)+' ')
     target.write(str(Samples)+' ')
     target.write(str(Min)+' ')
@@ -183,7 +193,7 @@ if __name__ == "__main__":
     target.close()
 
     
-    #print("Minutes: %d, Seconds: %d" % (int(Min), int(Sec)) ) 
+    print("Minutes: %d, Seconds: %d" % (int(Min), int(Sec)) ) 
 
-    joblib.dump(vectorizers, opts.vectorizerfile)
-    joblib.dump(clf, opts.iforestfile)
+    #joblib.dump(vectorizers, opts.vectorizerfile)
+    #joblib.dump(clf, opts.iforestfile)

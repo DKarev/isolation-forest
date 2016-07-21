@@ -33,13 +33,15 @@ def build_vectorizers(df, max_features=100, ngram_size=7, verbose=False):
     print('\nBuilding Vectorizers')
     vectorizers = {}
     #create bag of ngram vectorizers
-    for feature in ['user_agent','uri','referrer','host', 'subdomain']:
+    #for feature in ['user_agent','uri','referrer','host', 'subdomain']:
+    for feature in ['user_agent']:
         if verbose: print('Creating BON Vectorizer for %s' % feature)
         vectorizer = TfidfVectorizer(analyzer='char',max_features = max_features,ngram_range=(ngram_size,ngram_size))
         vectorizers[feature] = vectorizer.fit(df[feature].astype(str))
 
     #create bag of words vectorizers
-    for feature in ['method','status_code','resp_p_str', 'URIparams', 'browser_string', 'tld']:
+    #for feature in ['method','status_code','resp_p_str', 'URIparams', 'browser_string', 'tld']:
+    for feature in ['method','status_code']:
         if verbose: print('Creating BOW Vectorizer for %s' % feature)
         vectorizer = TfidfVectorizer(analyzer='word',max_features = max_features)
         vectorizers[feature] = vectorizer.fit(df[feature].astype(str))
@@ -47,6 +49,7 @@ def build_vectorizers(df, max_features=100, ngram_size=7, verbose=False):
     return vectorizers
 
 def featureize(df, vectorizers, verbose=False):
+    # type: (object, object, object) -> object
     """
       Featurize an enhanced http dataframe
 
@@ -70,7 +73,9 @@ def featureize(df, vectorizers, verbose=False):
     bow_features = []
     #featurize using the vectorizers.
     
-    for feature in ['user_agent','uri','referrer','host', 'subdomain', 'method','status_code','resp_p_str', 'URIparams', 'browser_string', 'tld']:
+    
+    #for feature in ['user_agent','uri','referrer','host', 'subdomain', 'method','status_code','resp_p_str', 'URIparams', 'browser_string', 'tld']:
+    for feature in ['user_agent', 'method', 'status_code']:
         if verbose: print('Featurizing %s' % feature)
         single_feature_matrix = vectorizers[feature].transform(df[feature].astype(str))
         if verbose: print('  Dim of %s: %s' % (feature,single_feature_matrix.shape[1]))
