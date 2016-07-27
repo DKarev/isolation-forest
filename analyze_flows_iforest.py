@@ -157,8 +157,6 @@ if __name__ == "__main__":
     target.write("\n")
     target.close()
 
-    print('\a')
-    print('\a')
 
 
     # if (opts.verbose):
