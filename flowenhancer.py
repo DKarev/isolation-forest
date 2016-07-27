@@ -8,7 +8,7 @@ from urlparse import urlparse, parse_qs
 logging.getLogger("tldextract").setLevel(logging.CRITICAL)
 
 
-def enhance_flow(flowDF):
+def enhance_flow(flowDF, ftu):
     """
       Add some useful columns to a http dataframe.
 
@@ -26,10 +26,11 @@ def enhance_flow(flowDF):
     #create some useful pre-features
 
     #stringify the port. probably no longer needed since we defensivley stringify things elsewhere.
-    flowDF['resp_p_str'] = flowDF['resp_p'].apply(str)
+    #flowDF['resp_p_str'] = flowDF['resp_p'].apply(str)
 
     #extract the browser string from the user agent.
-    flowDF['browser_string'] = flowDF['user_agent'].apply(lambda agent: httpagentparser.simple_detect(agent)[1])
+    if 'browser_string' in ftu:
+      flowDF['browser_string'] = flowDF['user_agent'].apply(lambda agent: httpagentparser.simple_detect(agent)[1])
     
     def paramsSSV(uri):
         fullUri = 'http://bogus.com/'+uri
@@ -37,7 +38,8 @@ def enhance_flow(flowDF):
         return ' '.join(parseResult.keys())
 
     #create a SSV of the URI parameter keys
-    flowDF['URIparams'] = flowDF['uri'].apply(paramsSSV)
+    if 'URIparams' in ftu:
+      flowDF['URIparams'] = flowDF['uri'].apply(paramsSSV)
     
     def tokensSSV(uri):
         fullUri = 'http://bogus.com/'+uri
@@ -45,12 +47,15 @@ def enhance_flow(flowDF):
         return ' '.join([" ".join(vals) for vals in parseResult.values()])
 
     #create a SSV of the URI parameter values
-    flowDF['URItokens'] = flowDF['uri'].apply(tokensSSV)
+    if 'URItokens' in ftu:
+      flowDF['URItokens'] = flowDF['uri'].apply(tokensSSV)
 
     #extract the subdomain from the host
-    flowDF['subdomain'] = flowDF['host'].apply(lambda host: tldextract.extract(host)[0])
+    if 'subdomain' in ftu:
+      flowDF['subdomain'] = flowDF['host'].apply(lambda host: tldextract.extract(host)[0])
 
     #extract the TLD from the host
-    flowDF['tld'] = flowDF['host'].apply(lambda host: tldextract.extract(host)[1])
+    if 'tld' in ftu:
+      flowDF['tld'] = flowDF['host'].apply(lambda host: tldextract.extract(host)[1])
 
     return flowDF
