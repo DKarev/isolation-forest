@@ -204,7 +204,9 @@ def Eval(clargs):
 
     plt.plot(plt.xlim(), plt.ylim(), ls="--", c=".3")
     plt.savefig("fig3.png")
-    plt.show()
+    plt.clf()
+    plt.close('all')
+
 
     print('Area Under the Curve = %.6f' %(roc_auc))
 
@@ -221,6 +223,8 @@ def Eval(clargs):
     target.write(str(roc_auc))
     target.write("\n")
     target.write(str(features))
+    target.write("\n")
+    target.write("\n")
     target.close()
 
     
